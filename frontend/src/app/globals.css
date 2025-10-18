@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-[#0f172a] text-slate-200;
+  background-image:
+    radial-gradient(60% 50% at 15% 10%, rgba(59,130,246,.10) 0%, transparent 60%),
+    radial-gradient(50% 45% at 85% 20%, rgba(255,102,0,.10) 0%, transparent 60%);
+  background-attachment: fixed;
+}

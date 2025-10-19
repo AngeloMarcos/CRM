@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Paciente, PacienteSchema } from "../../../lib/types";
 import { randomUUID } from "crypto";
+import { Paciente, PacienteSchema } from "../../../lib/types";
 
 let DB: Paciente[] = [
   { id: randomUUID(), nome: "Ana Paula", telefone: "(11) 91234-5678", documento: "123.456.789-00" },
@@ -9,7 +9,7 @@ let DB: Paciente[] = [
 ];
 
 export async function GET() {
-  await new Promise(r => setTimeout(r, 150));
+  await new Promise((r) => setTimeout(r, 150));
   return NextResponse.json(DB);
 }
 

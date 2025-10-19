@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import KPICard from "../components/KPICard";
 import Table from "../components/Table";
 import QuickAction from "../components/QuickAction";
+
 import {
   kpis,
   proximasConsultasHeaders,

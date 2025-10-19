@@ -1,22 +1,47 @@
 version: "3.9"
+
 services:
   postgres:
     image: postgres:16
+    container_name: mentoark_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: example
       POSTGRES_DB: crm
-    ports: ["5432:5432"]
-    volumes: [pg:/var/lib/postgresql/data]
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d crm"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7
-    ports: ["6379:6379"]
+    container_name: mentoark_redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: mentoark_backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:example@postgres:5432/crm?schema=public
+      - CORS_ORIGIN=http://localhost:3000
+      - PORT=4000
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: sh -lc "npx prisma generate && npx prisma migrate deploy && npm run dev"
 
 volumes:
   pg: {}

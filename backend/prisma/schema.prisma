@@ -1,3 +1,4 @@
+// backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,42 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Paciente {
-  id          String   @id @default(uuid())
-  nome        String
-  telefone    String
-  documento   String? 
-  observacoes String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  agendamentos Agendamento[]
-}
-
 model Lead {
-  id        String   @id @default(uuid())
-  nome      String?
-  telefone  String
-  interesse String?
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  name       String
+  phone      String
+  interest   String?
+  status     LeadStatus @default(NEW)
+  notes      String?    @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
-enum StatusAgendamento {
-  CONFIRMADO
-  PENDENTE
-  CANCELADO
-}
-
-model Agendamento {
-  id           String   @id @default(uuid())
-  pacienteId   String
-  inicio       DateTime
-  fim          DateTime
-  procedimento String?
-  status       StatusAgendamento @default(PENDENTE)
-
-  paciente Paciente @relation(fields: [pacienteId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  WON
+  LOST
 }

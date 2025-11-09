@@ -1,20 +1,43 @@
+// backend/src/routes/leads.ts
 import { FastifyInstance } from 'fastify';
 import { prisma } from '../db/prisma';
-import { z } from 'zod';
-
-const LeadSchema = z.object({
-  nome: z.string().optional(),
-  telefone: z.string(),
-  interesse: z.string().optional()
-});
 
 export default async function leadsRoutes(app: FastifyInstance) {
-  app.get('/', async () => prisma.lead.findMany({ orderBy: { createdAt: 'desc' } }));
+  // Listar
+  app.get('/', async () => {
+    const leads = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
+    return { ok: true, data: leads };
+  });
 
-  app.post('/', async (req, res) => {
-    const parsed = LeadSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).send(parsed.error.flatten());
-    const novo = await prisma.lead.create({ data: parsed.data });
-    return res.status(201).send(novo);
+  // Criar
+  app.post('/', async (req, reply) => {
+    const body = req.body as { name: string; phone: string; interest?: string; status?: string; notes?: string };
+    if (!body?.name || !body?.phone) return reply.code(400).send({ ok: false, error: 'name e phone são obrigatórios' });
+
+    const lead = await prisma.lead.create({
+      data: {
+        name: body.name,
+        phone: body.phone,
+        interest: body.interest,
+        status: (body.status as any) || 'NEW',
+        notes: body.notes,
+      },
+    });
+    return { ok: true, data: lead };
+  });
+
+  // Atualizar
+  app.put('/:id', async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const body = req.body as Partial<{ name: string; phone: string; interest: string; status: string; notes: string }>;
+    const lead = await prisma.lead.update({ where: { id }, data: body });
+    return { ok: true, data: lead };
+  });
+
+  // Deletar
+  app.delete('/:id', async (req) => {
+    const { id } = req.params as { id: string };
+    await prisma.lead.delete({ where: { id } });
+    return { ok: true };
   });
 }
